@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
 })
 
 app.get("/about", (req, res) => {
-    res.render("about",{
+    res.render("about", {
         image: './static/home.jpg'
     });
 })
@@ -35,14 +35,14 @@ app.get("/contact", (req, res) => {
     res.render("contact");
 })
 
-app.get("/show", (req, res) => {
-    res.render("show", {
-        contact: './static/contact/abc.jpg'
+app.get("/showdetails", (req, res) => {
+    let info = fs.readFileSync('./public/contacts/details.txt').toString().split('\n');
+    res.render("showdetails", {
+        file : info
     });
 })
 
 app.get("/gallery", (req, res) => {
-    // let arr = ;
     res.render("gallery", {
         items:
             ['https://i.picsum.photos/id/28/4928/3264.jpg?hmac=GnYF-RnBUg44PFfU5pcw_Qs0ReOyStdnZ8MtQWJqTfA', 'https://i.picsum.photos/id/9/5000/3269.jpg?hmac=cZKbaLeduq7rNB8X-bigYO8bvPIWtT-mh8GRXtU3vPc', 'https://i.picsum.photos/id/15/2500/1667.jpg?hmac=Lv03D1Y3AsZ9L2tMMC1KQZekBVaQSDc1waqJ54IHvo4',
@@ -55,24 +55,33 @@ app.get("/gallery", (req, res) => {
 app.post("/get_contact", (req, res) => {
     let { name, email, contact, city } = req.body;
 
-    let file = "./public/contacts/" + email;
-    let data = ('Name: ' + name + '\nEmail: ' + email + '\nContact: ' + contact + '\nCity: ' + city);
+    // let file = "./public/contacts/" + email;
 
-    if (!fs.existsSync(file)) {
-        fs.mkdir(file, (err) => {
-            if (err) throw err;
-            else {
-                fs.writeFile(file + '/details.txt', data, (err) => {
-                    res.render("welcome");
-                    if (err) throw err;
-                });
-            }
-        });
-
-    } else {
-        res.render("welcome1");
+    if (fs.existsSync('./public/contacts/details.txt')) {
+        // fs.mkdir(file, (err) => {
+        //     if (err) throw err;
+        //     else {
+        // fs.appendFile(file + '/details.txt', data, (err) => {
+        if (name === '' || email === '' || contact === '' || city === '') {
+            res.render('contact');
+        } else {
+            let data = (name + ',' + email + ',' + contact + ',' + city);
+            fs.appendFile('./public/contacts/details.txt', data + '\n', (err) => {
+                res.render("welcome");
+                if (err) throw err;
+            })
+        }
     }
-})
+    // else {
+    //     fs.writeFileSync('./static/contacts/details.txt', data);
+    //     app.send();
+    // }
+
+});
+// else {
+//     res.render("welcome1");
+// }
+// }
 
 app.listen(PORT, (err) => {
     if (err) throw err;
